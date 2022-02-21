@@ -37,7 +37,7 @@ router.post('/login', async (req, res) => {
     );
 
 
-    res.cookie('authorization', token, { maxAge: 3600 * 1000 })
+    res.cookie('authorization', token, { maxAge: 3600 * 1000 });
     res.status(201).send({
         success: true,
     });

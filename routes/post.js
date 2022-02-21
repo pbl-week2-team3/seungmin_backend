@@ -50,8 +50,6 @@ router.get('/:postId', async (req, res) => {
     post.dataValues.likeByMe = like ? true : false;
     post.dataValues.profile_img_url = await Users.findOne({ id: post.user_id }).img_url;
 
-
-
     // 댓글들과 댓글 작성 유저들의 프로필 사진
     const comments = await Comments.findAll({ where: { post_id }, order: [['id', 'DESC']] });
     for (let comment of comments) {

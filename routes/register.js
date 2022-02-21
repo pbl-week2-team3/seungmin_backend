@@ -18,13 +18,15 @@ router.post('/register', async (req, res, next) => {
 
     const registerSchema = joi.object({
         id: joi.string().alphanum().min(3).max(25).required(),
-        nickname: joi.string().min(3).max(9).required(),
+        nickname: joi.string().alphanum().min(3).max(9).required(),
         profile_img_url: joi.string().required(),
         password: joi.string().required(),
         password_check: joi.required()
     });
 
-    if (registerSchema.validate(req.body).error || password === password_check) {
+    if (registerSchema.validate(req.body).error ||
+        password === password_check ||
+        password.includes(nickname)) {
         res.send({
             success: false,
             errorMessage: '다시 입력해주세요.'

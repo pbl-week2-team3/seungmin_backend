@@ -10,6 +10,8 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
+      Posts.belongsTo(models.Users, { foreignKey: 'user_id', sourceKey: 'id' });
+      Posts.belongsTo(models.Users, { foreignKey: 'profile_img_url', sourceKey: 'img_url' });
       // define association here
     }
   }
@@ -20,11 +22,11 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true
     },
     content: DataTypes.STRING,
-    user_id: DataTypes.STRING,
     img_url: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Posts',
+    charset: 'utf8',
   });
   return Posts;
 };

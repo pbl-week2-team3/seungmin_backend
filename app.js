@@ -2,19 +2,14 @@ const cookieParser = require('cookie-parser');
 const express = require('express');
 const Http = require('http');
 const socketIo = require('socket.io');
-const { Comments, Posts, Users, Likes } = require('./models')
+const events = require('./socket.js');
+
 
 const app = express();
 const http = Http.createServer(app);
-const io = socketIo(http, {
-});
+const io = socketIo(http);
+events(io);
 
-io.on('connection', (socket) => {
-    socket.on('like', (data) => {
-        const { user_id, post_id, comment, like } = data;
-        io.emit
-    })
-});
 
 const port = 5000;
 const logger = (req, res, next) => {
