@@ -33,7 +33,7 @@ router.post('/login', async (req, res) => {
     const token = jwt.sign(
         { id, nickname },
         'secret',
-        { algorithm: 'RS256', expiresIn: 3600 }
+        { expiresIn: 3600 }
     );
 
 

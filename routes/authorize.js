@@ -7,7 +7,7 @@ router.use((req, res, next) => {
     const { authorization } = req.cookies;
     try {
         // { id, nickname } 꼴로 locals.user에 들어있음.
-        res.locals.user = jwt.verify(authorization, 'secret');
+        res.locals = jwt.verify(authorization, 'secret');
         next();
     } catch (err) {
         // 토큰이 유효하지 않음

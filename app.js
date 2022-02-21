@@ -28,10 +28,13 @@ app.use([logger, express.json(), cookieParser(), express.static('./static')]);
 const loginRouter = require('./routes/login');
 const postRouter = require('./routes/post');
 const registerRouter = require('./routes/register');
-const authorize = require('./routes/authorize')
+const commentRouter = require('./routes/comment');
+const likeRouter = require('./routes/like');
+const authorize = require('./routes/authorize');
 
 app.use('/api', [loginRouter, registerRouter]);
-app.use('/api/post', [authorize, postRouter]);
+app.use('/api/post', [authorize, postRouter, likeRouter]);
+app.use('/api/comment', [authorize, commentRouter]);
 app.use('/', (req, res) => res.redirect('/login.html'));
 
 // 서버 실행

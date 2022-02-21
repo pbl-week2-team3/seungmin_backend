@@ -3,25 +3,26 @@ const { Comments, Posts, Users, Likes } = require('../models')
 const router = express.Router();
 
 // 전체 게시글 불러오기
-router.get('/', async (res, req) => {
+router.get('/', async (req, res) => {
     const { id } = res.locals;
-
     const posts = await Posts.findAll({ order: [['id', 'DESC']] }); // 수정 되어도 글은 밑에 위치하게 됨.
 
     for (let i = 0; i < posts.length; i++) {
-        posts[i].byMe = user_id === posts[i].id ? true : false;
+        const post = posts[i]
 
-        const { nickname, img_url } = await Users.findOne({ where: { user_id } });
-        posts[i].nickname = nickname;
-        posts[i].profile_img_url = img_url;
+        post.dataValues.byMe = id === post.user_id ? true : false;
+        const { nickname, img_url } = await Users.findOne({ where: { id: post.user_id } });
+        post.dataValues.nickname = nickname;
+        post.dataValues.profile_img_url = img_url;
 
-        const like = await Likes.findOne({ where: { id: user_id, post_id } });
-        const like_cnt = await Likes.count({ where: { post_id, user_id: id } });
-        const comment_cnt = await Comments.count({ where: { post_id, } });
+        const like = await Likes.findOne({ where: { post_id: post.id, user_id: post.user_id } });
+        const like_cnt = await Likes.count({ where: { post_id: post.id } });
+        const comment_cnt = await Comments.count({ where: { post_id: post.id } });
 
-        posts[i].like_cnt = like_cnt;
-        posts[i].comment_cnt = comment_cnt;
-        posts[i].likeByMe = like ? true : false;
+        post.dataValues.like_cnt = like_cnt;
+        post.dataValues.comment_cnt = comment_cnt;
+        post.dataValues.likeByMe = like ? true : false;
+        if (post.id === 11) console.log(like)
     }
 
     res.json(posts);
@@ -33,7 +34,7 @@ router.get('/:postId', async (req, res) => {
     const post_id = parseInt(req.params.postId);
 
     // 게시글이 존재하는지?
-    const post = await Posts.findOne({ id: post_id });
+    let post = await Posts.findOne({ where: { id: post_id } });
     if (!post) {
         res.send({
             success: false,
@@ -43,34 +44,35 @@ router.get('/:postId', async (req, res) => {
     }
 
     // 좋아요를 몇개 눌렀는지?, 내가 좋아요 눌렀는지?
-    const like = await Likes.findOne({ id: user_id, post_id });
-    post.likes = await Likes.findAll({ where: { post_id } }).length;
-    post.byMe = id === post.user_id ? true : false;
-    post.likeByMe = like ? true : false;
-    Users.findOne({ id: post.user_id }).then((user) => {
-        post.profile_img_url = user.img_url
-    });
+    const like = await Likes.findOne({ where: { id: post.user_id, post_id } });
+    post.dataValues.likes = await Likes.count({ where: { post_id } });
+    post.dataValues.byMe = id === post.user_id ? true : false;
+    post.dataValues.likeByMe = like ? true : false;
+    post.dataValues.profile_img_url = await Users.findOne({ id: post.user_id }).img_url;
+
+
 
     // 댓글들과 댓글 작성 유저들의 프로필 사진
-    post.comments = await Comments.findAll({ where: { post_id }, order: [['id', 'DESC']] });
-
-    for (let i = 0; i < post.comments.length; i++) {
-        post.comments[i].profile_img_url = await Users.findOne({ id: post.comments[i].user_id }).img_url;
+    const comments = await Comments.findAll({ where: { post_id }, order: [['id', 'DESC']] });
+    for (let comment of comments) {
+        const user = await Users.findOne({ where: { id: comment.user_id } });
+        comment.dataValues.profile_img_url = user.img_url;
     }
+    post.dataValues.comments = comments
 
     res.send({
         success: true,
         post
-    })
+    });
 });
 
 // 게시글 작성
 // 이미지 받는 걸 추가해야함.
 router.post('/', async (req, res) => {
     const { id } = res.locals;
-    const { contents, img_url } = req.body;
+    const { content, img_url } = req.body;
 
-    if (!contents) {
+    if (!content) {
         res.status(401).send({
             success: false,
             errorMessage: '게시글을 작성해주세요.'
@@ -79,10 +81,10 @@ router.post('/', async (req, res) => {
     }
 
     await Posts.create({
-        contents,
+        content,
         user_id: id,
         img_url
-    })
+    });
 
     res.status(201).send({
         success: true
@@ -104,9 +106,9 @@ router.put('/:postId', async (req, res) => {
         return;
     }
 
-    const { contents, img_url } = req.body;
+    const { content: content, img_url } = req.body;
     await Posts.update(
-        { contents, img_url, },
+        { content: content, img_url, },
         { where: { id: post_id } }
     );
 
@@ -118,7 +120,7 @@ router.put('/:postId', async (req, res) => {
 // 게시글 삭제
 router.delete('/:postId', async (req, res) => {
     const { id } = res.locals;
-    const post_id = pasreInt(req.params.postId);
+    const post_id = parseInt(req.params.postId);
 
     const post = await Posts.findOne({
         where: {

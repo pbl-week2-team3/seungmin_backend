@@ -1,1 +1,0 @@
-# seungmin_backend

@@ -16,7 +16,7 @@ router.post('/:postId/like', async (req, res) => {
         return;
     }
 
-    await Likes.creat({
+    await Likes.create({
         post_id,
         user_id: id
     });
