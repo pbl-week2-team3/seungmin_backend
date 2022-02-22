@@ -5,18 +5,15 @@ const router = express.Router();
 
 router.use((req, res, next) => {
     try {
-        const { authorization } = req.cookies;
+        const { token } = req.cookies;
         // { id, nickname } 꼴로 locals.user에 들어있음.
-        res.locals = jwt.verify(authorization, 'secret');
-        next();
+        res.locals = jwt.verify(token, 'secret');
+
     } catch (err) {
         // 토큰이 유효하지 않음
-        res.status(400).send({
-            success: false,
-            errorMessage: '로그인 후 이용 바랍니다.'
-        })
-        return;
+        res.locals = { id: '', nickname: '' }
     }
+    next();
 });
 
 module.exports = router;

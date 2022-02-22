@@ -1,4 +1,5 @@
 const express = require('express');
+const fs = require('fs');
 const { Comments, Posts, Users, Likes } = require('../models')
 const router = express.Router();
 
@@ -22,7 +23,6 @@ router.get('/', async (req, res) => {
         post.dataValues.like_cnt = like_cnt;
         post.dataValues.comment_cnt = comment_cnt;
         post.dataValues.likeByMe = like ? true : false;
-        if (post.id === 11) console.log(like)
     }
 
     res.json(posts);
@@ -55,6 +55,7 @@ router.get('/:postId', async (req, res) => {
     for (let comment of comments) {
         const user = await Users.findOne({ where: { id: comment.user_id } });
         comment.dataValues.profile_img_url = user.img_url;
+        comment.dataValues.byMe = comment.user_id === id ? true : false;
     }
     post.dataValues.comments = comments
 
@@ -68,6 +69,13 @@ router.get('/:postId', async (req, res) => {
 // 이미지 받는 걸 추가해야함.
 router.post('/', async (req, res) => {
     const { id } = res.locals;
+    if (!id) {
+        res.status(400).send({
+            success: false,
+            errorMessage: '회원만 이용할 수 있는 기능입니다.'
+        });
+        return;
+    }
     const { content, img_url } = req.body;
 
     if (!content) {
@@ -92,6 +100,13 @@ router.post('/', async (req, res) => {
 // 게시글 수정
 router.put('/:postId', async (req, res) => {
     const { id } = res.locals;
+    if (!id) {
+        res.status(400).send({
+            success: false,
+            errorMessage: '회원만 이용할 수 있는 기능입니다.'
+        });
+        return;
+    }
     const post_id = parseInt(req.params.postId);
 
     const post = await Posts.findOne({ where: { id: post_id } });
@@ -103,8 +118,12 @@ router.put('/:postId', async (req, res) => {
         })
         return;
     }
+    // 이미지 파일 삭제
+    fs.unlink(img_url, (err) => {
+        console.log(err);
+    });
 
-    const { content: content, img_url } = req.body;
+    const { content, img_url } = req.body;
     await Posts.update(
         { content: content, img_url, },
         { where: { id: post_id } }
@@ -118,6 +137,13 @@ router.put('/:postId', async (req, res) => {
 // 게시글 삭제
 router.delete('/:postId', async (req, res) => {
     const { id } = res.locals;
+    if (!id) {
+        res.status(400).send({
+            success: false,
+            errorMessage: '회원만 이용할 수 있는 기능입니다.'
+        });
+        return;
+    }
     const post_id = parseInt(req.params.postId);
 
     const post = await Posts.findOne({
@@ -133,6 +159,10 @@ router.delete('/:postId', async (req, res) => {
         })
         return;
     }
+    // 이미지 파일 삭제
+    fs.unlink(img_url, (err) => {
+        console.log(err);
+    });
 
     await Posts.destroy({
         where: {

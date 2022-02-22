@@ -20,6 +20,16 @@ router.post('/:postId', async (req, res) => {
 
 router.put('/:postId/:commentId', async (req, res) => {
     const { id } = res.locals;
+    if (!id) {
+        res.status(400).send({
+            result: {
+                success: false,
+                errorMessage: '회원만 이용할 수 있는 기능입니다.'
+            }
+        });
+        return;
+    }
+
     const { text } = req.body;
     const comment_id = parseInt(req.params.commentId);
     const post_id = parseInt(req.params.postId);
@@ -43,6 +53,16 @@ router.put('/:postId/:commentId', async (req, res) => {
 
 router.delete('/:postId/:commentId', async (req, res) => {
     const { id } = res.locals;
+    if (!id) {
+        res.status(400).send({
+            result: {
+                success: false,
+                errorMessage: '회원만 이용할 수 있는 기능입니다.'
+            }
+        });
+        return;
+    }
+
     const comment_id = parseInt(req.params.commentId);
     const post_id = parseInt(req.params.postId);
 

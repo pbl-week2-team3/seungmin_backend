@@ -2,7 +2,7 @@ const cookieParser = require('cookie-parser');
 const express = require('express');
 const Http = require('http');
 const socketIo = require('socket.io');
-const { Users, Posts } = require('./models')
+const { Posts } = require('./models')
 
 const app = express();
 const http = Http.createServer(app);
@@ -72,7 +72,12 @@ const logger = (req, res, next) => {
     next();
 };
 
-app.use([logger, express.json(), cookieParser(), express.static('./static')]);
+app.use([
+    logger,
+    express.urlencoded(),
+    express.json(),
+    cookieParser(),
+    express.static(__dirname + '/static')]);
 
 
 const loginRouter = require('./routes/login');
@@ -85,7 +90,7 @@ const authorize = require('./routes/authorize');
 app.use('/api', [loginRouter, registerRouter]);
 app.use('/api/post', [authorize, postRouter, likeRouter]);
 app.use('/api/comment', [authorize, commentRouter]);
-app.use('/', (req, res) => res.redirect('/login.html'));
+app.use('/', (req, res) => res.sendFile(__dirname + '/static/login.html'));
 
 // 서버 실행
 http.listen(port, () => console.log('server on'));

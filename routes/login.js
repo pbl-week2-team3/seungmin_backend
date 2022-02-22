@@ -36,17 +36,19 @@ router.post('/login', async (req, res) => {
     );
 
 
-    res.cookie('authorization', token, { maxAge: 3600 * 1000 });
+    res.cookie('token', token, { maxAge: 3600 * 1000 });
     res.status(201).send({
-        success: true,
+        success: true
     });
 });
 
 
 router.get('/logout', authorize, (req, res) => {
-    res.clearCookie(authorization);
+    res.clearCookie(token);
+    res.clearCookie('token');
     res.send({
-        success: true,
+        success: true
     })
 });
+
 module.exports = router;
