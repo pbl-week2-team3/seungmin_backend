@@ -10,7 +10,12 @@ const io = socketIo(http);
 
 io.on('connection', (socket) => {
     // data는 { user_id: user_id } 꼴임.
+    // 자기 방에 꽂아준다. socket id를 이용하는 방법은 잘 모르겠음.
+    // cookie 있으면 프론트에서 해당 방에 꽂아준다.
     socket.on('connect', (data) => {
+        if (Object.keys(data).length === 1) {
+            return;
+        }
         socket.join(`${data.user_id}`);
     });
 
@@ -18,14 +23,21 @@ io.on('connection', (socket) => {
         const { post_id, id } = data;
         Posts.findOne({ where: { id: post_id } })
             .then((post) => {
-                socket.to(`${post.user_id}`).emit('alarm', {
-                    like: true,
-                    comment: false,
-                    by: id,
-                    post_id,
-                    to: post.user_id,
-                    date: new Date().toISOString()
-                });
+                try {
+                    socket.to(`${post.user_id}`).emit('alarm', {
+                        like: true,
+                        comment: false,
+                        by: id,
+                        post_id,
+                        to: post.user_id,
+                        date: new Date().toISOString()
+                    });
+                } catch (err) {
+                    socket.to(`${id}`).send({
+                        success: false,
+                        errorMessage: '존재하지 않는 게시글입니다.'
+                    });
+                }
             });
     });
     // 댓글을 쓰면
@@ -33,14 +45,21 @@ io.on('connection', (socket) => {
         const { post_id, id } = data;
         Posts.findOne({ where: { id: post_id } })
             .then((post) => {
-                socket.to(`${post.user_id}`).emit('alarm', {
-                    like: false,
-                    comment: true,
-                    by: id,
-                    post_id,
-                    to: post.user_id,
-                    date: new Date().toISOString()
-                });
+                try {
+                    socket.to(`${post.user_id}`).emit('alarm', {
+                        like: false,
+                        comment: true,
+                        by: id,
+                        post_id,
+                        to: post.user_id,
+                        date: new Date().toISOString()
+                    });
+                } catch (err) {
+                    socket.to(`${id}`).send({
+                        success: false,
+                        errorMessage: '존재하지 않는 게시글입니다.'
+                    });
+                }
             });
     });
 
