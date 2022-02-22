@@ -4,8 +4,8 @@ const jwt = require('jsonwebtoken');
 const router = express.Router();
 
 router.use((req, res, next) => {
-    const { authorization } = req.cookies;
     try {
+        const { authorization } = req.cookies;
         // { id, nickname } 꼴로 locals.user에 들어있음.
         res.locals = jwt.verify(authorization, 'secret');
         next();

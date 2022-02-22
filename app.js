@@ -2,13 +2,49 @@ const cookieParser = require('cookie-parser');
 const express = require('express');
 const Http = require('http');
 const socketIo = require('socket.io');
-const events = require('./socket.js');
-
+const { Users, Posts } = require('./models')
 
 const app = express();
 const http = Http.createServer(app);
 const io = socketIo(http);
-events(io);
+
+io.on('connection', (socket) => {
+    // data는 { user_id: user_id } 꼴임.
+    socket.on('connect', (data) => {
+        socket.join(`${data.user_id}`);
+    });
+
+    socket.on('like', (data) => {
+        const { post_id, id } = data;
+        Posts.findOne({ where: { id: post_id } })
+            .then((post) => {
+                socket.to(`${post.user_id}`).emit('alarm', {
+                    like: true,
+                    comment: false,
+                    by: id,
+                    post_id,
+                    to: post.user_id,
+                    date: new Date().toISOString()
+                });
+            });
+    });
+    // 댓글을 쓰면
+    socket.on('comment', (data) => {
+        const { post_id, id } = data;
+        Posts.findOne({ where: { id: post_id } })
+            .then((post) => {
+                socket.to(`${post.user_id}`).emit('alarm', {
+                    like: false,
+                    comment: true,
+                    by: id,
+                    post_id,
+                    to: post.user_id,
+                    date: new Date().toISOString()
+                });
+            });
+    });
+
+});
 
 
 const port = 5000;

@@ -1,5 +1,5 @@
 const express = require('express');
-const { Likes } = require('../models')
+const { Likes, Posts } = require('../models')
 const router = express.Router();
 
 // 좋아요 누르기
@@ -15,6 +15,16 @@ router.post('/:postId/like', async (req, res) => {
         })
         return;
     }
+
+    const post = await Posts.findOne({ where: { id: post_id } });
+    if (!post) {
+        res.status(401).send({
+            success: false,
+            errorMessage: '존재하지 않는 게시글입니다.'
+        });
+        return;
+    }
+
 
     await Likes.create({
         post_id,
@@ -37,6 +47,15 @@ router.delete('/:postId/like', async (req, res) => {
             success: false,
             errorMessage: '좋아요를 하지 않은 게시글입니다.'
         })
+        return;
+    }
+
+    const post = await Posts.findOne({ where: { id: post_id } });
+    if (!post) {
+        res.status(401).send({
+            success: false,
+            errorMessage: '존재하지 않는 게시글입니다.'
+        });
         return;
     }
 

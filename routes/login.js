@@ -1,12 +1,13 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const authorize = require('./authorize');
 const { Users } = require('../models');
 const router = express.Router();
 
 router.post('/login', async (req, res) => {
-    const { authorization } = req.cookies;
-
     try {
+        // 이미 로그인 한 상태이면
+        const { authorization } = req.cookies;
         jwt.verify(authorization, 'secret');
         res.status(400).send({
             success: false,
@@ -14,8 +15,6 @@ router.post('/login', async (req, res) => {
         });
         return;
     } catch (err) { }
-
-    // 이미 로그인 한 상태이면
 
     const { id, password } = req.body;
 
@@ -43,4 +42,11 @@ router.post('/login', async (req, res) => {
     });
 });
 
+
+router.get('/logout', authorize, (req, res) => {
+    res.clearCookie(authorization);
+    res.send({
+        success: true,
+    })
+});
 module.exports = router;
