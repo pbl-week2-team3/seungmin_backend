@@ -44,11 +44,19 @@ router.post('/login', async (req, res) => {
 
 
 router.get('/logout', authorize, (req, res) => {
-    res.clearCookie(token);
-    res.clearCookie('token');
-    res.send({
-        success: true
-    })
+    try {
+        res.clearCookie(token);
+        res.clearCookie('token');
+        res.send({
+            success: true
+        })
+    } catch (err) {
+        res.send({
+            success: false,
+            errorMessage: '로그인 후 이용해주세요.'
+        })
+    }
+
 });
 
 module.exports = router;
