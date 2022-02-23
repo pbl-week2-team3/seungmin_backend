@@ -135,9 +135,6 @@ router.put('/:postId', async (req, res) => {
         return;
     }
     // 이미지 파일 삭제
-    fs.unlink(img_url, (err) => {
-        console.log(err);
-    });
 
     const { content, img_url } = req.body;
     await Posts.update(
@@ -177,9 +174,6 @@ router.delete('/:postId', async (req, res) => {
         return;
     }
     // 이미지 파일 삭제
-    fs.unlink(img_url, (err) => {
-        console.log(err);
-    });
 
     await Posts.destroy({
         where: {

@@ -10,9 +10,6 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      Comments.belongsTo(models.Users, { foreignKey: 'user_id', sourceKey: 'id' });
-      Comments.belongsTo(models.Users, { foreignKey: 'profile_img_url', sourceKey: 'img_url' });
-      Comments.belongsTo(models.Posts, { foreignKey: 'post_id', sourceKey: 'id' });
       // define association here
     }
   }
@@ -22,11 +19,12 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       autoIncrementIdentity: true
     },
+    post_id: DataTypes.INTEGER,
+    user_id: DataTypes.STRING,
     text: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Comments',
-    charset: 'utf8',
   });
   return Comments;
 };

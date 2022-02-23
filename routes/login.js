@@ -45,7 +45,6 @@ router.post('/login', async (req, res) => {
 
 router.get('/logout', authorize, (req, res) => {
     try {
-        res.clearCookie(token);
         res.clearCookie('token');
         res.send({
             success: true
