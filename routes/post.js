@@ -25,7 +25,12 @@ router.get('/', async (req, res) => {
         post.dataValues.likeByMe = like ? true : false;
     }
 
-    res.json(posts);
+
+    res.send({
+        Auth: id ? true : false,
+        success: true,
+        posts
+    });
 });
 
 // 특정 게시글 조회
@@ -60,6 +65,7 @@ router.get('/:postId', async (req, res) => {
     post.dataValues.comments = comments
 
     res.send({
+        Auth: id ? true : false,
         success: true,
         post
     });
@@ -130,6 +136,7 @@ router.put('/:postId', async (req, res) => {
     );
 
     res.send({
+        Auth: id ? true : false,
         success: true,
     })
 });
@@ -183,6 +190,7 @@ router.delete('/:postId', async (req, res) => {
     });
 
     res.send({
+        Auth: id ? true : false,
         success: true,
     });
 });

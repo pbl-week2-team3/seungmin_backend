@@ -13,7 +13,7 @@ io.on('connection', (socket) => {
     // 자기 방에 꽂아준다. socket id를 이용하는 방법은 잘 모르겠음.
     // cookie 있으면 프론트에서 해당 방에 꽂아준다.
     socket.on('connect', (data) => {
-        if (Object.keys(data).length === 1) {
+        if (Object.keys(data).length) {
             return;
         }
         socket.join(`${data.user_id}`);
@@ -66,7 +66,7 @@ io.on('connection', (socket) => {
 });
 
 
-const port = 5000;
+const port = 3000;
 const logger = (req, res, next) => {
     console.log('User request :', req.originalUrl, new Date());
     next();
