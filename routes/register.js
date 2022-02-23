@@ -34,8 +34,10 @@ router.post('/register', async (req, res, next) => {
         return;
     }
 
-    const existUser = await Users.findOne({ where: { id, nickname } });
-
+    let existUser = await Users.findOne({ where: { id } });
+    if (!existUser) {
+        existUser = await Users.findOne({ where: { nickname } });
+    }
 
     if (existUser) {
         res.send({
