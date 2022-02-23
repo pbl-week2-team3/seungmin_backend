@@ -8,6 +8,16 @@ router.get('/', async (req, res) => {
     const { id } = res.locals;
     const posts = await Posts.findAll({ order: [['id', 'DESC']] }); // 수정 되어도 글은 밑에 위치하게 됨.
 
+    if (!posts.length) {
+        res.send({
+            success: true,
+            posts,
+            Message: '작성된 글이 없습니다.'
+        })
+        return;
+    }
+
+
     for (let i = 0; i < posts.length; i++) {
         const post = posts[i]
 
